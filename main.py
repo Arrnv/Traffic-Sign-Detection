@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from math import sqrt
-# from skimage.feature import blob_dog, blob_log, blob_doh
 from fastapi import FastAPI,  HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,8 +34,6 @@ SIGNS = ["ERROR",
          "NO OVERTAKE",
          "30KMPH NOT ALLOWED",
          "ONE WAY RIGHT"]
-
-# Clean all previous file
 
 
 def clean_images():
@@ -229,22 +226,15 @@ def remove_line(img):
 def remove_other_color(img):
     frame = cv2.GaussianBlur(img, (3, 3), 0)
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    # define range of blue color in HSV
     lower_blue = np.array([100, 128, 0])
     upper_blue = np.array([215, 255, 255])
-    # Threshold the HSV image to get only blue colors
     mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
-
     lower_white = np.array([0, 0, 128], dtype=np.uint8)
     upper_white = np.array([255, 255, 255], dtype=np.uint8)
-    # Threshold the HSV image to get only blue colors
     mask_white = cv2.inRange(hsv, lower_white, upper_white)
-
     lower_black = np.array([0, 0, 0], dtype=np.uint8)
     upper_black = np.array([170, 150, 50], dtype=np.uint8)
-
     mask_black = cv2.inRange(hsv, lower_black, upper_black)
-
     mask_1 = cv2.bitwise_or(mask_blue, mask_white)
     mask = cv2.bitwise_or(mask_1, mask_black)
     # Bitwise-AND mask and original image
@@ -257,7 +247,6 @@ def main():
     model = training()
     file_name = "MVI_1049.avi"
     vidcap = cv2.VideoCapture(file_name)
-
     fps = vidcap.get(cv2.CAP_PROP_FPS)
     # width = vidcap.get(3)  
     # height = vidcap.get(4)  
@@ -267,7 +256,6 @@ def main():
     termination = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)
     roiBox = None
     roiHist = None
-
     success = True
     similitary_contour_with_circle = 0.65   
     count = 0
@@ -284,8 +272,8 @@ def main():
         if not success:
             print("FINISHED")
             break
-        width = frame.shape[1]
-        height = frame.shape[0]
+        # width = frame.shape[1]
+        # height = frame.shape[0]
         # frame = cv2.resize(frame, (640,int(height/(width/640))))
         frame = cv2.resize(frame, (640, 480))
 
