@@ -65,7 +65,7 @@ def lookat(eye, target, up = (0, 0, 1)):
 
 def mtx2rvec(R):
     w, u, vt = cv2.SVDecomp(R - np.eye(3))
-    p = vt[0] + u[:,0]*w[0]    # same as np.dot(R, vt[0])
+    p = vt[0] + u[:,0]*w[0]    
     c = np.dot(vt[0], p)
     s = np.dot(vt[1], p)
     axis = np.cross(vt[0], vt[1])
@@ -104,7 +104,6 @@ class Sketcher:
             self.show()
 
 
-# palette data from matplotlib/_cm.py
 _jet_data =   {'red':   ((0., 0, 0), (0.35, 0, 0), (0.66, 1, 1), (0.89,1, 1),
                          (1, 0.5, 0.5)),
                'green': ((0., 0, 0), (0.125,0, 0), (0.375,1, 1), (0.64,1, 1),

@@ -1,13 +1,11 @@
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 from os import listdir
-# local modules
-from common import clock, mosaic
+from common import mosaic
 
-#Parameter
 SIZE = 32
 CLASS_NUMBER = 13
+
 
 def load_traffic_dataset():
     dataset = []

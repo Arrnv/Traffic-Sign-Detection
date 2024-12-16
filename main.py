@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 from math import sqrt
-from skimage.feature import blob_dog, blob_log, blob_doh
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+# from skimage.feature import blob_dog, blob_log, blob_doh
+from fastapi import FastAPI,  HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 import os
@@ -74,9 +74,6 @@ def preprocess_image(image):
     image = LaplacianOfGaussian(image)
     image = binarization(image)
     return image
-
-# Find Signs
-
 
 def removeSmallComponents(image, threshold):
     # find all your connected components (white blobs in your image)
@@ -262,8 +259,8 @@ def main():
     vidcap = cv2.VideoCapture(file_name)
 
     fps = vidcap.get(cv2.CAP_PROP_FPS)
-    width = vidcap.get(3)  # float
-    height = vidcap.get(4)  # float
+    # width = vidcap.get(3)  
+    # height = vidcap.get(4)  
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter('output.avi', fourcc, fps, (640, 480))
@@ -272,7 +269,7 @@ def main():
     roiHist = None
 
     success = True
-    similitary_contour_with_circle = 0.65   # parameter
+    similitary_contour_with_circle = 0.65   
     count = 0
     min_size_components =300
     current_sign = None
@@ -375,7 +372,6 @@ def main():
 
         # cv2.imshow('Result', image)
         count = count + 1
-        # Write to video
         out.write(image)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -387,11 +383,7 @@ def main():
     clean_images()
     return
 
-@app.get("/", response_class=HTMLResponse)
-async def read_root():
-    with open("static/Homepage.html", "r") as file:
-        html_content = file.read()
-    return HTMLResponse(content=html_content)
+
 
 
 @app.post("/process")
