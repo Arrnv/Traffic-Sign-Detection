@@ -37,7 +37,7 @@ def deskew(img):
 
 class StatModel(object):
     def load(self, fn):
-        self.model.load(fn)  # Known bug: https://github.com/opencv/opencv/issues/4969
+        self.model.load(fn) 
     def save(self, fn):
         self.model.save(fn)
 
@@ -114,9 +114,8 @@ def get_hog() :
     signedGradient = True
 
     hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,histogramNormType,L2HysThreshold,gammaCorrection,nlevels, signedGradient)
-
-    return hog
     affine_flags = cv2.WARP_INVERSE_MAP|cv2.INTER_LINEAR
+    return hog
 
 
 def training():

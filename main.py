@@ -13,7 +13,7 @@ from classification import training, getLabel
 
 
 app = FastAPI()
-# Configure CORS
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -30,7 +30,11 @@ SIGNS = ["ERROR",
          "DO NOT TURN RIGHT",
          "ONE WAY",
          "SPEED LIMIT",
-         "OTHER"]
+         "MIN SPEED 30KMPH",
+         "ONE WAY LEFT",
+         "NO OVERTAKE",
+         "30KMPH NOT ALLOWED",
+         "ONE WAY RIGHT"]
 
 # Clean all previous file
 
@@ -42,20 +46,19 @@ def clean_images():
             os.remove(file_name)
 
 
-# Preprocess image
 def constrastLimit(image):
     img_hist_equalized = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb)
-    channels = list(cv2.split(img_hist_equalized))  # Convert tuple to list
-    channels[0] = cv2.equalizeHist(channels[0])  # Modify the first channel
+    channels = list(cv2.split(img_hist_equalized))  
+    channels[0] = cv2.equalizeHist(channels[0])  
     img_hist_equalized = cv2.merge(channels)
     img_hist_equalized = cv2.cvtColor(img_hist_equalized, cv2.COLOR_YCrCb2BGR)
     return img_hist_equalized
 
 
 def LaplacianOfGaussian(image):
-    LoG_image = cv2.GaussianBlur(image, (3, 3), 0)           # paramter
+    LoG_image = cv2.GaussianBlur(image, (3, 3), 0)          
     gray = cv2.cvtColor(LoG_image, cv2.COLOR_BGR2GRAY)
-    LoG_image = cv2.Laplacian(gray, cv2.CV_8U, 3, 3, 2)       # parameter
+    LoG_image = cv2.Laplacian(gray, cv2.CV_8U, 3, 3, 2)       
     LoG_image = cv2.convertScaleAbs(LoG_image)
     return LoG_image
 
@@ -91,15 +94,12 @@ def removeSmallComponents(image, threshold):
 
 
 def findContour(image):
-    # find contours in the thresholded image
     cnts = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cnts = cnts[0] if len(cnts) == 2 else cnts[1]  # OpenCV compatibility
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]  
     return cnts
 
 
 def contourIsSign(perimeter, centroid, threshold):
-    #  perimeter, centroid, threshold
-    # # Compute signature of contour
     result = []
     for p in perimeter:
         p = p[0]
@@ -107,15 +107,12 @@ def contourIsSign(perimeter, centroid, threshold):
         result.append(distance)
     max_value = max(result)
     signature = [float(dist) / max_value for dist in result]
-    # Check signature of contour.
     temp = sum((1 - s) for s in signature)
     temp = temp / len(signature)
-    if temp < threshold:  # is  the sign
+    if temp < threshold:  
         return True, max_value + 2
-    else:                 # is not the sign
+    else:                
         return False, max_value + 2
-
-# crop sign
 
 
 def cropContour(image, center, max_distance):
@@ -136,7 +133,6 @@ def cropSign(image, coordinate):
     bottom = min([int(coordinate[1][1]), height-1])
     left = max([int(coordinate[0][0]), 0])
     right = min([int(coordinate[1][0]), width-1])
-    # print(top,left,bottom,right)
     return image[top:bottom, left:right]
 
 
@@ -145,7 +141,7 @@ def findLargestSign(image, contours, threshold, distance_theshold):
     coordinate = None
     sign = None
     for c in contours:
-        if len(c) == 0:  # Skip empty contours
+        if len(c) == 0:  
             continue
         M = cv2.moments(c)
         if M["m00"] == 0:
@@ -167,7 +163,6 @@ def findSigns(image, contours, threshold, distance_theshold):
     signs = []
     coordinates = []
     for c in contours:
-        # compute the center of the contour
         M = cv2.moments(c)
         if M["m00"] == 0:
             continue
